@@ -1,0 +1,88 @@
+C:\Users\Home\AppData\Local\Google\Cloud SDK>gsutil mb gs://revathicherry7
+Creating gs://revathicherry7/...
+
+C:\Users\Home\AppData\Local\Google\Cloud SDK>gsutil cp C:\Users\Home\Desktop\Big_Query\Use_cases\usecase3\empid_usecase3.csv gs://revathicherry7
+Copying file://C:\Users\Home\Desktop\Big_Query\Use_cases\usecase3\empid_usecase3.csv [Content-Type=application/vnd.ms-excel]...
+- [1 files][898.3 KiB/898.3 KiB]
+Operation completed over 1 objects/898.3 KiB.
+
+C:\Users\Home\AppData\Local\Google\Cloud SDK>bq mk -d u3
+Dataset 'cherry1-395606:u3' successfully created.
+
+C:\Users\Home\AppData\Local\Google\Cloud SDK>bq mk -t u3.stage cust_id:STRING,first_name:STRING,last_name:STRING,gender:STRING,ip_address:STRING,mac_id:STRING,client_name:STRING,mail_id:STRING,url_:STRING,app_name:STRING,ph_number:STRING,credit_card_band:STRING,card_isu_date:STRING,cur_code:STRING,valid_card:STRING,card_type:STRING,currency_code:STRING,access_code:STRING,lst_trns_dt:STRING,guid:STRING,stock_sym:STRING,emp_role:STRING
+Table 'cherry1-395606:u3.stage' successfully created.
+
+C:\Users\Home\AppData\Local\Google\Cloud SDK>bq load --source_format=CSV -skip_leading_rows=1 u3.stage gs://revathicherry7/empid_usecase3.csv
+Waiting on bqjob_r752d1ec795146110_0000018a6f3672ec_1 ... (1s) Current status: DONE
+
+
+C:\Users\Home\AppData\Local\Google\Cloud SDK>bq show u3.stage
+Table cherry1-395606:u3.stage
+
+   Last modified              Schema              Total Rows   Total Bytes   Expiration   Time Partitioning   Clustered Fields   Total Logical Bytes   Total Physical Bytes   Labels
+ ----------------- ----------------------------- ------------ ------------- ------------ ------------------- ------------------ --------------------- ---------------------- --------
+  07 Sep 16:05:54   |- cust_id: string            1000         938972                                                            938972                309674           
+                    |- first_name: string                                                                                                                               
+                    |- last_name: string                                                                                                                                
+                    |- gender: string                                                                                                                                   
+                    |- ip_address: string                                                                                                                               
+                    |- mac_id: string                                                                                                                                   
+                    |- client_name: string                                                                                                                              
+                    |- mail_id: string                                                                                                                                  
+                    |- url_: string                                                                                                                                     
+                    |- app_name: string                                                                                                                                 
+                    |- ph_number: string                                                                                                                                
+                    |- credit_card_band: string                                                                                                                         
+                    |- card_isu_date: string                                                                                                                            
+                    |- cur_code: string                                                                                                                                 
+                    |- valid_card: string                                                                                                                               
+                    |- card_type: string                                                                                                                                
+                    |- currency_code: string                                                                                                                            
+                    |- access_code: string                                                                                                                              
+                    |- lst_trns_dt: string                                                                                                                              
+                    |- guid: string                                                                                                                                     
+                    |- stock_sym: string                                                                                                                                
+                    |- emp_role: string   
+                                                                                                                              
+bq mk -d u3_1
+Dataset 'cherry1-395606:u3_1' successfully created.
+
+C:\Users\Home\AppData\Local\Google\Cloud SDK>bq mk -t u3_1.history cust_id:INTEGER,full_name:STRING,gender:STRING,ip_address:STRING,mac_id:STRING,client_name:STRING,mail_id:STRING,url_:STRING,app_name:STRING,ph_number:INT64,credit_card_band:STRING,card_isu_date:DATE,cur_code:STRING,valid_card:BOOLEAN,card_type:STRING,currency_code:STRING,access_code:STRING,lst_trns_dt:INT64,guid:STRING,stock_sym:STRING,emp_role:STRING,exmp_date:TIMESTAMP
+Table 'cherry1-395606:u3_1.history' successfully created.
+C:\Users\Home\AppData\Local\Google\Cloud SDK>bq show u3_1.history
+Table cherry1-395606:u3_1.history
+
+   Last modified              Schema              Total Rows   Total Bytes   Expiration   Time Partitioning   Clustered Fields   Total Logical Bytes   Total Physical Bytes   Labels
+ ----------------- ----------------------------- ------------ ------------- ------------ ------------------- ------------------ --------------------- ---------------------- --------
+  07 Sep 18:22:05   |- cust_id: integer           0            0                                                                 0                                      
+                    |- full_name: string                                                                                                                                
+                    |- gender: string                                                                                                                                   
+                    |- ip_address: string                                                                                                                               
+                    |- mac_id: string                                                                                                                                   
+                    |- client_name: string                                                                                                                              
+                    |- mail_id: string                                                                                                                                  
+                    |- url_: string                                                                                                                                     
+                    |- app_name: string                                                                                                                                 
+                    |- ph_number: integer                                                                                                                               
+                    |- credit_card_band: string                                                                                                                         
+                    |- card_isu_date: date                                                                                                                              
+                    |- cur_code: string                                                                                                                                 
+                    |- valid_card: boolean                                                                                                                              
+                    |- card_type: string                                                                                                                                
+                    |- currency_code: string                                                                                                                            
+                    |- access_code: string                                                                                                                              
+                    |- lst_trns_dt: integer                                                                                                                             
+                    |- guid: string                                                                                                                                     
+                    |- stock_sym: string                                                                                                                                
+                    |- emp_role: string                                                                                                                                 
+                    |- exmp_date: timestamp 
+
+C:\Users\Home\AppData\Local\Google\Cloud SDK>bq query --use_legacy_sql=false insert into u3_1.history select safe_cast(cust_id as integer),CONCAT(first_name, ' ' ,last_name) as full_name,gender string,ip_address string,mac_id string,client_name string,mail_id string,url_ string,app_name string,safe_cast(ph_number as int64),credit_card_band string,CASE WHEN card_isu_date LIKE '%/%' THEN PARSE_DATE('%m/%d/%Y',card_isu_date) WHEN card_isu_date LIKE '%-%' THEN PARSE_DATE('%m-%d-%Y',card_isu_date) END card_date,cur_code string,safe_cast(valid_card as boolean),card_type string,currency_code string,access_code string,safe_cast(lst_trns_dt as int64),guid string,stock_sym string,emp_role string,current_timestamp as exmp_date from u3.stage
+Waiting on bqjob_r15a93b55b73ffbfa_0000018a6fb44c44_1 ... (2s) Current status: DONE
+Number of affected rows: 1000
+
+
+C:\Users\Home\AppData\Local\Google\Cloud SDK>bq query --use_legacy_sql=false create view u3_1.view as select * from u3_1.history
+Waiting on bqjob_r720c41aabfd25886_0000018a6fb71353_1 ... (0s) Current status: DONE
+Created cherry1-395606.u3_1.view
+
